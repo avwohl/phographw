@@ -400,7 +400,7 @@ static INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
         // Copyright
         HWND hCopy = CreateWindowExW(0, L"STATIC",
-            L"Copyright \x00A9 2025-2026 Aaron Wohl.\nAll rights reserved.",
+            L"Copyright \x00A9 2025-2026 Aaron Wohl.\nLicensed under the GNU GPL v3.",
             WS_CHILD | WS_VISIBLE | SS_CENTER,
             0, y, w, 32, hwnd, nullptr, nullptr, nullptr);
         SendMessage(hCopy, WM_SETFONT, (WPARAM)bodyFont, TRUE);
