@@ -121,7 +121,7 @@ echo    Created: %OUTPUT%
 :: -----------------------------------------------------------------------
 echo [5/5] Signing package...
 
-set CERT_SUBJECT=CN=avwohl
+set CERT_SUBJECT=CN=724C9014-DD22-420E-9BB4-F2740D082EB0
 set PFX_FILE=%ROOT%\build\Phograph_dev.pfx
 set PFX_PASS=PhographDev2026
 

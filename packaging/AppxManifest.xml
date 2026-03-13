@@ -4,8 +4,8 @@
          xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
          IgnorableNamespaces="rescap">
 
-  <Identity Name="avwohl.Phograph"
-            Publisher="CN=avwohl"
+  <Identity Name="AaronWohl.Phograph"
+            Publisher="CN=724C9014-DD22-420E-9BB4-F2740D082EB0"
             Version="0.1.0.0"
             ProcessorArchitecture="x64" />
 
