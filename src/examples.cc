@@ -1,5 +1,6 @@
 #include "examples.h"
 #include "resource.h"
+#include "version.h"
 #include <winhttp.h>
 #include <shlobj.h>
 #include <commctrl.h>
@@ -156,7 +157,7 @@ static std::string winhttp_get(const std::wstring& url) {
     if (!WinHttpCrackUrl(url.c_str(), 0, 0, &uc))
         return "";
 
-    HINTERNET session = WinHttpOpen(L"Phograph/0.1.0",
+    HINTERNET session = WinHttpOpen(L"Phograph/" PHO_VERSION_STRING_W,
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
     if (!session) return "";
 
@@ -214,7 +215,7 @@ static bool winhttp_download_to_file(const std::wstring& url, const std::wstring
     if (!WinHttpCrackUrl(url.c_str(), 0, 0, &uc))
         return false;
 
-    HINTERNET session = WinHttpOpen(L"Phograph/0.1.0",
+    HINTERNET session = WinHttpOpen(L"Phograph/" PHO_VERSION_STRING_W,
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
     if (!session) return false;
 

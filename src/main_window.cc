@@ -1,5 +1,6 @@
 #include "main_window.h"
 #include "resource.h"
+#include "version.h"
 #include "dialogs.h"
 #include "examples.h"
 #include <windowsx.h>
@@ -376,7 +377,7 @@ static INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
         y += 30;
 
         // Version
-        HWND hVer = CreateWindowExW(0, L"STATIC", L"Version 0.1.0",
+        HWND hVer = CreateWindowExW(0, L"STATIC", L"Version " PHO_VERSION_STRING_W,
             WS_CHILD | WS_VISIBLE | SS_CENTER,
             0, y, w, 16, hwnd, nullptr, nullptr, nullptr);
         SendMessage(hVer, WM_SETFONT, (WPARAM)bodyFont, TRUE);

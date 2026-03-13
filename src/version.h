@@ -1,0 +1,12 @@
+#pragma once
+
+#define PHO_VERSION_MAJOR    0
+#define PHO_VERSION_MINOR    1
+#define PHO_VERSION_PATCH    0
+#define PHO_VERSION_BUILD    5
+
+#define PHO_VERSION_STRING   "0.1.0"
+#define PHO_VERSION_DOTQUAD  "0.1.0.5"
+
+#define PHO_VERSION_STRING_W L"0.1.0"
+#define PHO_VERSION_DOTQUAD_W L"0.1.0.5"
