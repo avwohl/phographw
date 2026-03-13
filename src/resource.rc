@@ -1,0 +1,63 @@
+#include "resource.h"
+#include <windows.h>
+
+MainMenu MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&New\tCtrl+N",            IDM_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",        IDM_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",           IDM_FILE_SAVE
+        MENUITEM "Save &As...\tCtrl+Shift+S", IDM_FILE_SAVEAS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                   IDM_FILE_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Delete\tDel",            IDM_EDIT_DELETE
+        MENUITEM "Select &All\tCtrl+A",     IDM_EDIT_SELECTALL
+        MENUITEM "D&uplicate\tCtrl+D",      IDM_EDIT_DUPLICATE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Toggle &Sidebar",         IDM_VIEW_SIDEBAR
+        MENUITEM "Toggle &Inspector",       IDM_VIEW_INSPECTOR
+        MENUITEM "Toggle &Console\tCtrl+Y", IDM_VIEW_CONSOLE
+        MENUITEM SEPARATOR
+        MENUITEM "Zoom &In\tCtrl+=",        IDM_VIEW_ZOOMIN
+        MENUITEM "Zoom &Out\tCtrl+-",       IDM_VIEW_ZOOMOUT
+        MENUITEM "&Fit to Window\tCtrl+1",  IDM_VIEW_FITWINDOW
+    END
+    POPUP "&Run"
+    BEGIN
+        MENUITEM "&Run\tCtrl+R",            IDM_RUN_RUN
+        MENUITEM "&Debug\tCtrl+Shift+R",    IDM_RUN_DEBUG
+        MENUITEM "&Stop\tCtrl+.",           IDM_RUN_STOP
+        MENUITEM SEPARATOR
+        MENUITEM "&Continue",               IDM_RUN_CONTINUE
+        MENUITEM "Step &Over",              IDM_RUN_STEPOVER
+        MENUITEM "Step &Into",              IDM_RUN_STEPINTO
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Consol&e\tCtrl+K",  IDM_RUN_CLEARCONSOLE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Phograph...",      IDM_HELP_ABOUT
+    END
+END
+
+IDR_ACCEL ACCELERATORS
+BEGIN
+    "N",        IDM_FILE_NEW,        VIRTKEY, CONTROL
+    "O",        IDM_FILE_OPEN,       VIRTKEY, CONTROL
+    "S",        IDM_FILE_SAVE,       VIRTKEY, CONTROL
+    "A",        IDM_EDIT_SELECTALL,  VIRTKEY, CONTROL
+    "D",        IDM_EDIT_DUPLICATE,  VIRTKEY, CONTROL
+    "R",        IDM_RUN_RUN,         VIRTKEY, CONTROL
+    "K",        IDM_NODE_ADD,        VIRTKEY, CONTROL
+    "Y",        IDM_VIEW_CONSOLE,    VIRTKEY, CONTROL
+    VK_DELETE,  IDM_EDIT_DELETE,     VIRTKEY
+    VK_OEM_PLUS,  IDM_VIEW_ZOOMIN,  VIRTKEY, CONTROL
+    VK_OEM_MINUS, IDM_VIEW_ZOOMOUT, VIRTKEY, CONTROL
+    "1",        IDM_VIEW_FITWINDOW,  VIRTKEY, CONTROL
+END

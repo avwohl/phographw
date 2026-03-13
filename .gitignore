@@ -1,0 +1,16 @@
+# Build
+build/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+
+# Visual Studio
+*.vcxproj.user
+*.suo
+*.sdf
+*.opensdf
+.vs/
+
+# Windows
+Thumbs.db
