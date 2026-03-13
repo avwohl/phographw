@@ -64,6 +64,7 @@ set(APP_SOURCES
     src/main_window.cc
     src/graph_canvas.cc
     src/dialogs.cc
+    src/examples.cc
     src/pho_platform_windows.cc
     src/plugins_windows.cc
     src/pho_prim_fileio_win.cc

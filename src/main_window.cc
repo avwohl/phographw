@@ -1,6 +1,7 @@
 #include "main_window.h"
 #include "resource.h"
 #include "dialogs.h"
+#include "examples.h"
 #include <windowsx.h>
 #include <commdlg.h>
 #include <shlwapi.h>
@@ -29,7 +30,9 @@ bool MainWindow::create(HINSTANCE hInst) {
     wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
     wc.lpszMenuName = L"MainMenu";
     wc.lpszClassName = MAIN_CLASS;
-    wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    wc.hIcon = LoadIconW(hInst, MAKEINTRESOURCEW(IDI_PHOGRAPH));
+    wc.hIconSm = (HICON)LoadImageW(hInst, MAKEINTRESOURCEW(IDI_PHOGRAPH),
+        IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
     RegisterClassExW(&wc);
 
     hwnd_ = CreateWindowExW(
@@ -488,6 +491,17 @@ void MainWindow::on_docs() {
         L"https://avwohl.github.io/phograph/", nullptr, nullptr, SW_SHOW);
 }
 
+void MainWindow::on_browse_examples() {
+    std::string json = show_example_browser(hwnd_, hInst_);
+    if (!json.empty()) {
+        if (app_.load_project(json)) {
+            update_ui();
+            app_.set_status("Example loaded");
+            update_status();
+        }
+    }
+}
+
 // -----------------------------------------------------------------------
 // UI updates
 // -----------------------------------------------------------------------
@@ -666,6 +680,7 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
             self->update_console();
             break;
         case IDM_NODE_ADD:        self->on_add_node(); break;
+        case IDM_HELP_EXAMPLES:   self->on_browse_examples(); break;
         case IDM_HELP_DOCS:       self->on_docs(); break;
         case IDM_HELP_ABOUT:      self->on_about(); break;
         }

@@ -1,5 +1,8 @@
 #pragma once
 
+// Icon
+#define IDI_PHOGRAPH          100
+
 // Menu IDs
 #define IDM_FILE_NEW          101
 #define IDM_FILE_OPEN         102
@@ -30,9 +33,14 @@
 
 #define IDM_HELP_ABOUT        901
 #define IDM_HELP_DOCS         902
+#define IDM_HELP_EXAMPLES     903
 
 // About dialog controls
 #define IDC_ABOUT_LINK        1010
+
+// Example browser controls
+#define IDC_EXAMPLE_TREE      1020
+#define IDC_EXAMPLE_DESC      1021
 
 // Control IDs
 #define IDC_SIDEBAR           1001
