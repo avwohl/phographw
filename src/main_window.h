@@ -40,6 +40,7 @@ public:
     void on_toggle_inspector();
     void on_toggle_console();
     void on_about();
+    void on_docs();
 
     // Refresh UI state
     void update_ui();

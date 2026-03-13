@@ -42,6 +42,8 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "&Documentation...",       IDM_HELP_DOCS
+        MENUITEM SEPARATOR
         MENUITEM "&About Phograph...",      IDM_HELP_ABOUT
     END
 END

@@ -29,6 +29,10 @@
 #define IDM_NODE_ADD          501
 
 #define IDM_HELP_ABOUT        901
+#define IDM_HELP_DOCS         902
+
+// About dialog controls
+#define IDC_ABOUT_LINK        1010
 
 // Control IDs
 #define IDC_SIDEBAR           1001

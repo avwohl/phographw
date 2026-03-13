@@ -4,6 +4,7 @@
 #include <windowsx.h>
 #include <commdlg.h>
 #include <shlwapi.h>
+#include <shellapi.h>
 #include <vector>
 #include <algorithm>
 
@@ -343,16 +344,148 @@ void MainWindow::on_toggle_console() {
     layout_controls();
 }
 
+// -----------------------------------------------------------------------
+// About dialog (matches macOS about box with clickable source link)
+// -----------------------------------------------------------------------
+
+static INT_PTR CALLBACK AboutDlgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+    case WM_INITDIALOG: {
+        RECT rc;
+        GetClientRect(hwnd, &rc);
+        int w = rc.right;
+
+        HFONT titleFont = CreateFontW(22, 0, 0, 0, FW_SEMIBOLD, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
+
+        HFONT bodyFont = CreateFontW(15, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+            DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY, DEFAULT_PITCH, L"Segoe UI");
+
+        int y = 14;
+
+        // App name
+        HWND hTitle = CreateWindowExW(0, L"STATIC", L"Phograph",
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            0, y, w, 26, hwnd, nullptr, nullptr, nullptr);
+        SendMessage(hTitle, WM_SETFONT, (WPARAM)titleFont, TRUE);
+        y += 30;
+
+        // Version
+        HWND hVer = CreateWindowExW(0, L"STATIC", L"Version 0.1.0",
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            0, y, w, 16, hwnd, nullptr, nullptr, nullptr);
+        SendMessage(hVer, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+        y += 26;
+
+        // Description
+        HWND hDesc = CreateWindowExW(0, L"STATIC",
+            L"A modern implementation of the Prograph\n"
+            L"visual dataflow programming language.",
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            10, y, w - 20, 36, hwnd, nullptr, nullptr, nullptr);
+        SendMessage(hDesc, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+        y += 42;
+
+        // Author
+        HWND hAuthor = CreateWindowExW(0, L"STATIC", L"Author: Aaron Wohl",
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            0, y, w, 16, hwnd, nullptr, nullptr, nullptr);
+        SendMessage(hAuthor, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+        y += 18;
+
+        // Copyright
+        HWND hCopy = CreateWindowExW(0, L"STATIC",
+            L"Copyright \x00A9 2025-2026 Aaron Wohl.\nAll rights reserved.",
+            WS_CHILD | WS_VISIBLE | SS_CENTER,
+            0, y, w, 32, hwnd, nullptr, nullptr, nullptr);
+        SendMessage(hCopy, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+        y += 38;
+
+        // Clickable source link (SysLink control)
+        HWND hLink = CreateWindowExW(0, WC_LINK,
+            L"<a href=\"https://github.com/avwohl/phographw\">https://github.com/avwohl/phographw</a>",
+            WS_CHILD | WS_VISIBLE,
+            24, y, w - 48, 16, hwnd, (HMENU)(INT_PTR)IDC_ABOUT_LINK, nullptr, nullptr);
+        SendMessage(hLink, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+        y += 28;
+
+        // OK button
+        HWND hOK = CreateWindowExW(0, L"BUTTON", L"OK",
+            WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+            (w - 80) / 2, y, 80, 26, hwnd, (HMENU)(INT_PTR)IDOK, nullptr, nullptr);
+        SendMessage(hOK, WM_SETFONT, (WPARAM)bodyFont, TRUE);
+
+        // Center on parent
+        HWND parent = GetParent(hwnd);
+        if (parent) {
+            RECT prc, drc;
+            GetWindowRect(parent, &prc);
+            GetWindowRect(hwnd, &drc);
+            int cx = prc.left + (prc.right - prc.left - (drc.right - drc.left)) / 2;
+            int cy = prc.top + (prc.bottom - prc.top - (drc.bottom - drc.top)) / 3;
+            SetWindowPos(hwnd, nullptr, cx, cy, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+        }
+        return TRUE;
+    }
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
+            EndDialog(hwnd, 0);
+            return TRUE;
+        }
+        break;
+
+    case WM_NOTIFY: {
+        auto* nmhdr = reinterpret_cast<NMHDR*>(lParam);
+        if (nmhdr->code == NM_CLICK || nmhdr->code == NM_RETURN) {
+            if (nmhdr->idFrom == IDC_ABOUT_LINK) {
+                auto* link = reinterpret_cast<NMLINK*>(lParam);
+                ShellExecuteW(nullptr, L"open", link->item.szUrl, nullptr, nullptr, SW_SHOW);
+                return TRUE;
+            }
+        }
+        break;
+    }
+
+    case WM_CLOSE:
+        EndDialog(hwnd, 0);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 void MainWindow::on_about() {
-    MessageBoxW(hwnd_,
-        L"Phograph for Windows\n"
-        L"Version 0.1.0\n\n"
-        L"A modern implementation of the Prograph\n"
-        L"visual dataflow programming language.\n\n"
-        L"Author: Aaron Wohl\n"
-        L"Copyright \x00A9 2025-2026 Aaron Wohl.\n"
-        L"All rights reserved.",
-        L"About Phograph", MB_OK | MB_ICONINFORMATION);
+    struct DialogTemplate {
+        DWORD style;
+        DWORD exStyle;
+        WORD cdit;
+        short x, y, cx, cy;
+        WORD menu;
+        WORD windowClass;
+        wchar_t title[32];
+    };
+
+    DialogTemplate tmpl = {};
+    tmpl.style = DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU;
+    tmpl.cdit = 0;
+    tmpl.x = 0; tmpl.y = 0;
+    tmpl.cx = 180; tmpl.cy = 140;
+    wcscpy_s(tmpl.title, L"About Phograph");
+
+    DialogBoxIndirectParamW(
+        hInst_,
+        reinterpret_cast<LPCDLGTEMPLATEW>(&tmpl),
+        hwnd_,
+        AboutDlgProc,
+        0);
+}
+
+void MainWindow::on_docs() {
+    ShellExecuteW(nullptr, L"open",
+        L"https://avwohl.github.io/phograph/", nullptr, nullptr, SW_SHOW);
 }
 
 // -----------------------------------------------------------------------
@@ -533,6 +666,7 @@ LRESULT CALLBACK MainWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
             self->update_console();
             break;
         case IDM_NODE_ADD:        self->on_add_node(); break;
+        case IDM_HELP_DOCS:       self->on_docs(); break;
         case IDM_HELP_ABOUT:      self->on_about(); break;
         }
         return 0;
