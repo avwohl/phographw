@@ -8,7 +8,7 @@ This app does **not** collect, store, or transmit any personal data.
 
 ## Network Usage
 
-This app does not make any network connections. All project files are stored and processed locally.
+This app connects to GitHub (`api.github.com` and `github.com`) solely to download example programs when you use **Help > Browse Examples**. No data is sent; the only network activity is downloading the example archive. All project files are stored and processed locally.
 
 ## Local Storage
 
