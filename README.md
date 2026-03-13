@@ -6,9 +6,7 @@ Programs are built by connecting nodes with wires on a visual canvas rather than
 
 ## Download for Windows
 
-**[Download the latest Windows installer (Phograph.exe)](https://github.com/avwohl/phographw/releases/latest/download/Phograph.exe)**
-
-Also available as an MSIX package: [Phograph.msix](https://github.com/avwohl/phographw/releases/latest/download/Phograph.msix)
+**[Download the latest Windows installer (Phograph.msix)](https://github.com/avwohl/phographw/releases/latest/download/Phograph.msix)**
 
 See all releases: [GitHub Releases](https://github.com/avwohl/phographw/releases)
 
