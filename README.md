@@ -1,6 +1,6 @@
-# Phograph - Visual Dataflow Programming
+# Phograph for Windows - Visual Dataflow Programming
 
-A modern implementation of the [Prograph](https://en.wikipedia.org/wiki/Prograph) visual dataflow programming language for macOS and Windows.
+A Windows port of [Phograph](https://github.com/avwohl/phograph), a modern implementation of the [Prograph](https://en.wikipedia.org/wiki/Prograph) visual dataflow programming language.
 
 Programs are built by connecting nodes with wires on a visual canvas rather than writing text. Data flows left-to-right through wires, and the system evaluates nodes as their inputs become available.
 
@@ -22,184 +22,119 @@ See all releases: [GitHub Releases](https://github.com/avwohl/phographw/releases
 - **Async** - futures, channels, managed effects
 - **Observable attributes** - reactive attribute system with actor classes
 - **Front panel** - runtime UI for interactive programs
-- **Scene graph** - shape hierarchy with CPU rasterizer, displayed via Metal
-- **Compiler** - graph-to-Swift source code generation for standalone binaries
+- **Scene graph** - shape hierarchy with CPU rasterizer, displayed via Direct2D
 - **Debugger** - breakpoints, step/rollback, trace values on wires
-- **10 plugin libraries** - math, crypto, image, sound, MIDI, networking, file I/O, and more (135 additional primitives)
 
 ## Prerequisites
 
-You need a Mac with the following installed:
+You need a Windows PC with the following installed:
 
-    Tool          How to get it                      Verify with
-    ----          ---------------                    -----------
-    Git           Xcode Command Line Tools (below)   git --version
-    Xcode 15+     Mac App Store                      xcodebuild -version
-    CMake 3.16+   brew install cmake                 cmake --version
+    Tool                              How to get it                                      Verify with
+    ----                              ---------------                                    -----------
+    Git                               https://git-scm.com/download/win                   git --version
+    Visual Studio 2022 (C++ workload) Visual Studio Installer > "Desktop development     cl
+                                      with C++"
+    CMake 3.16+                       Included with Visual Studio, or cmake.org           cmake --version
+    Windows SDK 10.0+                 Included with Visual Studio C++ workload            -
 
-Xcode installs the Apple Clang C++17 compiler, the macOS SDKs (CoreAudio, CoreMIDI, CoreGraphics, ImageIO, Security, etc.), and the Swift toolchain. If you only want to run the C++ engine tests and do not need the full IDE, you can use the Xcode Command Line Tools alone (without the full Xcode app):
-
-    xcode-select --install       # installs git, clang, make, etc.
-    brew install cmake           # CMake is not included with Xcode
-
-Optional tools:
-
-    Tool          Purpose                            Install
-    ----          -------                            -------
-    XcodeGen      Regenerate Xcode project           brew install xcodegen
-    Homebrew      Install CMake and XcodeGen          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+Visual Studio provides the MSVC C++17 compiler, the Windows SDK (Direct2D, DirectWrite, WinHTTP, Winsock, etc.), and CMake. If you install CMake via Visual Studio, run commands from a **Developer Command Prompt for VS 2022** or **Developer PowerShell** so that the compiler and SDK are on your PATH.
 
 ## Quick Start
 
-Clone the repository:
+Clone this repository and the shared core engine side by side:
 
     git clone https://github.com/avwohl/phograph.git
-    cd phograph
+    git clone https://github.com/avwohl/phographw.git
+    cd phographw
 
-### Option A: Run the macOS App (Xcode)
+The Windows port references the portable C++ engine from `../phograph/phograph_core/src`, so both repositories must be siblings in the same parent directory.
 
-    open Phograph.xcodeproj
+### Build with CMake
 
-Select the **Phograph** scheme and press **Cmd+R** to build and run. The app targets macOS 13+.
+    cmake -B build
+    cmake --build build --config Release
 
-Or build from the command line:
+This generates a Visual Studio solution under `build/` and compiles `Phograph.exe`.
 
-    xcodebuild -scheme Phograph -destination 'platform=macOS' build
+### Open in Visual Studio
+
+    cmake -B build
+    start build\Phograph.sln
+
+Select the **Phograph** target, set the configuration to **Release** or **Debug**, and press **F5** to build and run.
+
+### Run the app
 
 Once running:
 
-1. **File > New Project** (Cmd+N) creates a starter project that computes `(3 + 4) * 2 = 14`
-2. Click **Run** in the toolbar to execute
-3. **Cmd+K** opens the fuzzy finder to add new nodes
-
-### Option B: Build and Test the C++ Engine Only
-
-    cd phograph_core
-    cmake -B build
-    cmake --build build
-    ctest --test-dir build --output-on-failure
-
-This builds the portable C++ engine as a static library and runs the full test suite (13 test executables, ~200 assertions). No Xcode app or GUI required.
-
-Expected output:
-
-    100% tests passed, 0 tests failed out of 13
+1. **File > New** (Ctrl+N) creates a starter project that computes `(3 + 4) * 2 = 14`
+2. Click **Run > Run** (Ctrl+R) to execute
+3. **Ctrl+K** opens the fuzzy finder to add new nodes
 
 ## Architecture
 
 The project follows a portable C++ core with thin platform bridge pattern:
 
-    phograph/                    macOS IDE + app
-      Phograph/
-        App/                     SwiftUI entry point
-        Bridge/                  ObjC++ bridge to C++ engine
-        Views/                   SwiftUI IDE views (canvas, browser, inspector, front panel)
-          IDE/FrontPanelView.swift  Runtime front panel UI
-        ViewModels/              IDE state management
-        Model/                   Swift ObservableObject models
-        Metal/                   MetalRenderer + shaders
-        Runtime/                 Swift runtime for compiled programs
+    phographw/                   Windows IDE + app (this repo)
+      src/
+        main.cc                  WinMain entry point
+        app.h/cc                 Application state and engine wrapper
+        main_window.h/cc         Main window, menus, accelerators
+        graph_canvas.h/cc        Direct2D canvas rendering and interaction
+        dialogs.h/cc             Dialog boxes (add node, inspector)
+        examples.h/cc            Example browser (downloads from GitHub)
+        pho_platform_windows.cc  Platform abstraction (file I/O, HTTP, threading)
+        plugins_windows.cc       Audio/MIDI plugin stubs (Windows)
+        pho_prim_fileio_win.cc   Windows file I/O primitives
+        pho_prim_socket_win.cc   Windows socket primitives
+        pho_prim_locale_win.cc   Windows locale/time primitives
+        pho_prim_date_win.cc     Windows date/time primitives
+        resource.rc              Menus, accelerators, version info
+        resource.h               Resource IDs
+        version.h                Version constants
+        win_compat.h             MSVC compatibility shims for core sources
+      packaging/
+        AppxManifest.xml         MSIX manifest for Windows Store
+        build_msix.bat           Automated MSIX packaging script
+      store_assets/              Windows Store tile/logo images
 
-    phograph_core/               Portable C++ engine (no platform #includes)
+    ../phograph/phograph_core/   Portable C++ engine (separate repo)
       src/
         pho_value.{h,cc}         Tagged union for 13 types
         pho_graph.{h,cc}         Graph model: Node, Wire, Method, Case, Class
         pho_eval.{h,cc}          Dataflow evaluator/scheduler
         pho_serial.{h,cc}        JSON serialization/deserialization
-        pho_bridge.{h,cc}        C API for Swift/ObjC interop
+        pho_bridge.{h,cc}        C API for platform interop
         pho_prim*.cc             Primitive implementations (~25 files)
-        pho_prim_date.cc         Date/time primitives
-        pho_prim_methodref.cc    Method reference primitives
         pho_scene.{h,cc}         Scene graph
         pho_draw.{h,cc}          CPU rasterizer
         pho_codegen.{h,cc}       Graph-to-Swift compiler
         pho_debug.{h,cc}         Debugger/trace
         pho_thread.{h,cc}        Run loop, timers, event queue
         pho_platform.h           Platform abstraction (no implementation)
-        plugins/                 Native audio/MIDI plugin implementations
       tests/                     C++ test suite (13 executables)
 
-    libraries/                   Plugin libraries (10 libraries, 135 primitives)
-      math/                      factorial, fibonacci, gcd, lcm, is-prime
-      crypto/                    SHA-256, HMAC, AES, random bytes, etc.
-      image/                     Load/save PNG/JPEG, resize, pixel access
-      sound/                     Audio playback, sample generation
-      midi/                      MIDI I/O, note on/off, control change
-      fileio/                    Read/write/list files and directories
-      socket/                    TCP/UDP client/server
-      net/                       HTTP get/post
-      bitmap/                    Pixel buffer manipulation
-      locale/                    Date/time formatting, locale info
+The C++ core has zero platform `#include`s. All I/O goes through `pho_platform.h`, which has per-platform implementations (Windows: `src/pho_platform_windows.cc`, macOS: in the main repo's `Bridge/pho_platform_apple.mm`).
 
-    docs/                        Language spec, design docs
-    site/                        GitHub Pages tutorial site
+## Building the MSIX Package
 
-The C++ core has zero platform `#include`s. All I/O goes through `pho_platform.h`, which has per-platform implementations (Apple: ObjC++ in `Bridge/pho_platform_apple.mm`).
+To build an MSIX installer for sideloading or Windows Store submission:
 
-## Testing
+    packaging\build_msix.bat Release
 
-### C++ Engine Tests
+This will:
 
-    cd phograph_core
-    cmake -B build
-    cmake --build build
-    ctest --test-dir build --output-on-failure
+1. Build the executable with CMake (Release config)
+2. Stage the EXE, manifest, and store assets
+3. Create `resources.pri` via MakePri.exe
+4. Pack the MSIX via MakeAppx.exe
+5. Sign with a self-signed development certificate
 
-The test suite contains 13 executables:
-
-    Test                What it covers
-    ----                --------------
-    test_eval           Core evaluator, JSON parser, basic graph execution
-    test_phase2         String, list, dict, type, data, error primitives; multi-case dispatch; recursion
-    test_phase3         OOP: classes, instance generators, get/set, inheritance
-    test_bridge         C bridge API: load JSON, call methods, pixel buffer, error handling
-    test_scene          Scene graph: shapes, transforms, hit testing, canvas, drawing
-    test_phase6         Run loop: events, timers, input handling, easing, animation
-    test_phase7         IDE rendering: fuzzy search, node layout, wire/grid rendering
-    test_phase8         Debugger: breakpoints, traces, snapshots, step control
-    test_phase9         Async: futures, channels, effects
-    test_phase10        Compiler: Swift code generation, name mangling, topo sort
-    test_e2e_compile    End-to-end: compile graph to Swift, run swiftc, verify output
-    test_phase11_28     Phases 11-28: execution wires, loops, listMap, try/error, pattern matching, observables
-    test_comprehensive  Full-language bridge test: all primitives, types, control flow, OOP, canvas
-
-### Library Validation
-
-    bash tests/test_libraries.sh
-
-Checks that all 10 library manifests are valid JSON, primitives are unique, C++ registration functions exist, and primitive counts match expectations.
-
-### macOS App
-
-    xcodebuild -scheme Phograph -destination 'platform=macOS' build
-
-## Regenerating the Xcode Project
-
-The checked-in `Phograph.xcodeproj` is generated from `project.yml`. If you add or remove source files:
-
-    brew install xcodegen   # one-time
-    xcodegen generate
-
-## Documentation
-
-- [Learn Phograph](https://avwohl.github.io/phograph/) -- step-by-step tutorial covering dataflow basics through OOP and advanced patterns
-- [IDE Guide](https://avwohl.github.io/phograph/guide.html) -- canvas navigation, keyboard shortcuts, debugger, and export
-- [Language Reference](https://avwohl.github.io/phograph/reference.html) -- complete reference for all data types, primitives, and evaluation rules
-
-The full language specification is also available at `docs/prograph_language.md` (~2650 lines).
-
-## Library System
-
-Phograph supports plugin libraries that add new primitives to the environment.
-
-- **Install:** Place a library folder (containing `library.json` and implementation files) in `~/Library/Application Support/Phograph/Libraries/`
-- **Manage:** Use **Libraries > Manage Libraries...** to view installed libraries, check versions, and toggle availability
-- **Use:** Library primitives appear in the right-click context menu and fuzzy finder (Cmd+K) alongside built-in nodes
-- **Create:** A library needs a `library.json` declaring its name, version, and primitives (with input/output counts). See `docs/prograph_language.md` for the library specification.
+The output is `build\Phograph.msix`.
 
 ## Examples
 
-Open the Example Browser with **Cmd+Shift+E** to explore built-in examples:
+Open the Example Browser with **Ctrl+Shift+E** to explore built-in examples:
 
 - **Basics** -- arithmetic, string ops, control flow
 - **Lists** -- map, filter, sort, list comprehensions
@@ -207,22 +142,24 @@ Open the Example Browser with **Cmd+Shift+E** to explore built-in examples:
 - **Graphics** -- scene graph shapes, canvas rendering
 - **Patterns** -- loops, spreads, broadcasts, error handling
 
+## Documentation
+
+- [Learn Phograph](https://avwohl.github.io/phograph/) -- step-by-step tutorial covering dataflow basics through OOP and advanced patterns
+- [IDE Guide](https://avwohl.github.io/phograph/guide.html) -- canvas navigation, keyboard shortcuts, debugger, and export
+- [Language Reference](https://avwohl.github.io/phograph/reference.html) -- complete reference for all data types, primitives, and evaluation rules
+
 ## Contributing
 
 Contributions are welcome.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b my-feature`)
-3. Make your changes -- follow existing code style (SwiftUI views, C++ core)
-4. Run the C++ engine tests:
+3. Make your changes -- follow existing code style
+4. Build and verify:
 
-       cd phograph_core && cmake -B build && cmake --build build && ctest --test-dir build --output-on-failure
+       cmake -B build && cmake --build build --config Release
 
-5. Build the app (if you changed Swift/UI code):
-
-       xcodebuild -scheme Phograph -destination 'platform=macOS' build
-
-6. Open a pull request against `main`
+5. Open a pull request against `master`
 
 ## License
 
@@ -236,4 +173,4 @@ See [PRIVACY.md](PRIVACY.md)
 
 Aaron Wohl
 
-https://github.com/avwohl/phograph
+https://github.com/avwohl/phographw
